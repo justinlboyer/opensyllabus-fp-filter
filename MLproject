@@ -1,0 +1,23 @@
+name: Open Syllabus Citation Matching
+
+conda_env: conda.yaml
+
+entry_points:
+  data_clean:
+    parameters:
+      pth: path
+    command: "python clean.py {pth}"
+  baseline:
+    parameters:
+      pth: path
+      mlt: int
+      tlt: int
+    command: "python baseline.py {pth} {mlt} {tlt}"
+  main:
+    parameters:
+      pth: path
+    command: "python main.py {pth}"
+  train:
+    parameters:
+      pth: path
+    command: "python train.py {pth}"
