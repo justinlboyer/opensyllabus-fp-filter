@@ -1,0 +1,14 @@
+name: opensyllabus
+channels:
+  - defaults
+  - anaconda
+  - conda-forge
+dependencies:
+  - python=3.7
+  - click
+  - requests
+  - pandas
+  - scikit-learn
+  - pip
+  - pip:
+    - mlflow
