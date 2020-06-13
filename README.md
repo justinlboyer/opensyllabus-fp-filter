@@ -4,10 +4,12 @@
 This project is focused on identifying false positives within the open syllabus citation matcher.  It uses mlflow to organize metrics and parameters so that one can compare different models and methods to see areas of gains.  The project is in a state in which one could easily come in and try different model architectures and quickly see if they perform better than any of the existing models.  It is also easy to replicate all the experiments conducted.
 
 ## Replicate experiments
-Make sure you have mlflow installed
+Make sure you have mlflow installed:
+
     pip install mlflow
 
 To run all the experiments (including training) and steps in order simply:
+
     mlflow run . ./data/raw/matches.json
 
 ## Performance
