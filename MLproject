@@ -10,14 +10,15 @@ entry_points:
   baseline:
     parameters:
       pth: path
-      mlt: int
-      tlt: int
-    command: "python baseline.py {pth} {mlt} {tlt}"
+      middle_len_threshold: int
+      title_len_threshold: int
+    command: "python baseline.py {pth} {middle_len_threshold} {title_len_threshold}"
+  nb:
+    parameters:
+      pth: path
+      vec_pth: path
+    command: "python naive_bayes.py {pth} {vec_pth}"
   main:
     parameters:
       pth: path
     command: "python main.py {pth}"
-  train:
-    parameters:
-      pth: path
-    command: "python train.py {pth}"

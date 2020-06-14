@@ -1,25 +1,28 @@
 import click
 import mlflow
+import os
 import pandas as pd
 from sklearn.metrics import f1_score
 import time
-# from sklearn.metrics import confusion_matrix
+import utils
 
 @click.command()
-@click.argument('pth') #/home/j/projects/opensyllabus/mlruns/0/24ca970cae9641c686dd5056e7a66871/artifacts/processed-data-dir/matches.csv
-@click.argument('mlt')
-@click.argument('tlt')
-def workflow(pth, mlt, tlt):
+@click.argument('pth')
+@click.argument('middle_len_threshold')
+@click.argument('title_len_threshold')
+def workflow(pth, middle_len_threshold, title_len_threshold):
+    pth = os.path.join(pth, 'processed/matches.csv')
+    utils.reset_mlflow_run()
     with mlflow.start_run(run_name='baseline'):
-        mlt = int(mlt)
-        tlt = int(tlt)
-        mlflow.log_param('middle_len_threshold', mlt)
-        mlflow.log_param('title_len_threshold', tlt)
+        middle_len_threshold = int(middle_len_threshold)
+        title_len_threshold = int(title_len_threshold)
+        mlflow.log_param('middle_len_threshold', middle_len_threshold)
+        mlflow.log_param('title_len_threshold', title_len_threshold)
         df = pd.read_csv(pth)
         start = time.time()
         df['preds'] = df.apply(model
-                                , middle_len_threshold=mlt
-                                , title_len_threshold=tlt
+                                , middle_len_threshold=middle_len_threshold
+                                , title_len_threshold=title_len_threshold
                                 , axis=1)
         stop = time.time()
         mlflow.log_metric('prediction_time', stop-start)

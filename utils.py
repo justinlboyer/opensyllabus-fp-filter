@@ -1,8 +1,16 @@
 from joblib import dump, load
 import os
+import mlflow
 import pandas as pd
 import pickle
 from sklearn.feature_extraction.text import TfidfTransformer
+
+def reset_mlflow_run():
+    ''' Hack to get around lack of run_name labelling '''
+    run = mlflow.start_run()
+    runid = run.info.run_id
+    mlflow.end_run()
+
 
 def load_vectorizers(pth):
     return load(pth)

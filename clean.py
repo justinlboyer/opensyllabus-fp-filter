@@ -7,7 +7,7 @@ import utils
 
 
 @click.command(help="Path to raw data")
-@click.argument("pth") #default="./data/raw/matches.json"
+@click.argument("pth") 
 def workflow(pth):
     with mlflow.start_run(run_name='process_data'):
         csv_path = './data/processed/'
@@ -17,7 +17,7 @@ def workflow(pth):
         df = calculate_lengths(df)
         train_df = df[df['split']=='train']
         mid_cnt_path = char_grams(train_df, 'middle', 2, 2)
-        mlflow.log_artifact(mid_cnt_path, 'mid-cnt-vec-dir')
+        mlflow.log_artifact(mid_cnt_path, 'vec-dir')
         df.to_csv(csv_path + 'matches.csv', index=False)
 
         mlflow.log_artifact(csv_path, 'processed-data-dir')
