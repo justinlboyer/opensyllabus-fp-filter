@@ -1,5 +1,6 @@
 import click
 import mlflow
+import os
 import pandas as pd
 from sklearn.naive_bayes import GaussianNB
 from sklearn.naive_bayes import MultinomialNB
@@ -7,7 +8,24 @@ from sklearn.metrics import f1_score
 import time
 import utils
 
+@click.command()
+@click.argument('pth')
+@click.argument('vec_pth')
+def workflow(pth, vec_pth):
+    pth = os.path.join(pth, 'processed/matches.csv')
+    df = pd.read_csv(pth)
+    
+    gaussain_nb_word_len(df)
+
+    df, vec_cols = utils.preprocess(df, vec_pth, 'middle')
+    multinominal_nb_char_ngram(df, vec_cols)
+
+    df, vec_cols = utils.preprocess(df, vec_pth, 'middle', tfidf=True)
+    gaussian_nb_char_ngram(df, vec_cols)
+
+
 def gaussain_nb_word_len(df):
+    utils.reset_mlflow_run()
     with mlflow.start_run(run_name='gaussian_nb_word_len'):
         cols = ['middle_len', 'title_len', 'author_len']
         
@@ -55,19 +73,6 @@ def gaussian_nb_char_ngram(df, vec_cols):
         mlflow.log_metric('f1_score', f1)
         mlflow.log_metric('prediction_time', stop-start)
 
+
 if __name__ == '__main__':
-    pth = '/home/j/projects/opensyllabus/mlruns/0/24ca970cae9641c686dd5056e7a66871/artifacts/processed-data-dir/matches.csv'
-    vectorizer_paths = './models/'
-    df = pd.read_csv(pth)
-    
-    # gaussain_nb_word_len(df)
-
-    # df, vec_cols = utils.preprocess(df, vectorizer_paths, 'middle')
-    # multinominal_nb_char_ngram(df, vec_cols)
-
-    df, vec_cols = utils.preprocess(df, vectorizer_paths, 'middle', tfidf=True)
-    gaussian_nb_char_ngram(df, vec_cols)
-    
-    
-
-
+    workflow()
