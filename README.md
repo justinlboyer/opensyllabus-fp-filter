@@ -8,9 +8,19 @@ Make sure you have mlflow installed:
 
     pip install mlflow
 
+Clone the repo the cd into the working directory:
+
+    cd ./opensyllabus-fp-filter 
+
 To run all the experiments (including training) and steps in order simply:
 
-    mlflow run . ./data/raw/matches.json
+    mlflow run . -P pth=./data/raw/matches.json
+
+That will run the data cleaning, the baseline, and the experiements with naive bayes, once that has run start the mlflow ui with:
+
+    mlflow ui
+
+Now you can inspect each experiment and see which is performing best.  On my machine the model using just the lengths of the author, middle and title has an f1 score of 0.854 and can run inference on the test set in 0.003 seconds, so this seems to take the cake for the day.
 
 ## Performance
 We are concerned with speed and reducing the amount of false positives of which we have many.  As such we want to record the amount of time inference takes as well as the F1 score.

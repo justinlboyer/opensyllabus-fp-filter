@@ -4,13 +4,20 @@ import mlflow
 import pandas as pd
 import pickle
 from sklearn.feature_extraction.text import TfidfTransformer
+from sklearn.metrics import f1_score, precision_score, recall_score
 
 def reset_mlflow_run():
     ''' Hack to get around lack of run_name labelling '''
-    run = mlflow.start_run()
-    runid = run.info.run_id
+    mlflow.start_run()
     mlflow.end_run()
 
+def get_and_log_metrics(true, preds):
+    f1 = f1_score(true, preds)
+    precision = precision_score(true, preds)
+    recall = recall_score(true, preds)
+    mlflow.log_metric('f1_score', f1)
+    mlflow.log_metric('precision_score', precision)
+    mlflow.log_metric('recall_score', recall)
 
 def load_vectorizers(pth):
     return load(pth)

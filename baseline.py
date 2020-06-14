@@ -25,12 +25,9 @@ def workflow(pth, middle_len_threshold, title_len_threshold):
                                 , title_len_threshold=title_len_threshold
                                 , axis=1)
         stop = time.time()
+        test_df = df[df['split']=='test']
+        utils.get_and_log_metrics(test_df['label'], test_df['preds'])
         mlflow.log_metric('prediction_time', stop-start)
-        f1 = get_f1(df[df['split']=='test'])
-        mlflow.log_metric('f1_score', f1)
-
-def get_f1(test_df):
-    return f1_score(test_df['label'], test_df['preds'])
 
 
 def model(x, **kwargs):

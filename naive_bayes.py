@@ -4,7 +4,6 @@ import os
 import pandas as pd
 from sklearn.naive_bayes import GaussianNB
 from sklearn.naive_bayes import MultinomialNB
-from sklearn.metrics import f1_score
 import time
 import utils
 
@@ -37,8 +36,7 @@ def gaussain_nb_word_len(df):
         start = time.time()
         preds = gnb.predict(test_df[cols])
         stop = time.time()
-        f1 = f1_score(test_df['label'], preds)
-        mlflow.log_metric('f1_score', f1)
+        utils.get_and_log_metrics(test_df['label'], preds)
         mlflow.log_metric('prediction_time', stop-start)
 
 
@@ -54,8 +52,7 @@ def multinominal_nb_char_ngram(df, vec_cols):
         start = time.time()
         preds = mnb.predict(test_df[vec_cols])
         stop = time.time()
-        f1 = f1_score(test_df['label'], preds)
-        mlflow.log_metric('f1_score', f1)
+        utils.get_and_log_metrics(test_df['label'], preds)
         mlflow.log_metric('prediction_time', stop-start)
 
 def gaussian_nb_char_ngram(df, vec_cols):
@@ -69,8 +66,7 @@ def gaussian_nb_char_ngram(df, vec_cols):
         start = time.time()
         preds = mnb.predict(test_df[vec_cols])
         stop = time.time()
-        f1 = f1_score(test_df['label'], preds)
-        mlflow.log_metric('f1_score', f1)
+        utils.get_and_log_metrics(test_df['label'], preds)
         mlflow.log_metric('prediction_time', stop-start)
 
 
