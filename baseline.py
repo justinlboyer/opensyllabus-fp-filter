@@ -33,7 +33,7 @@ def workflow(pth, middle_len_threshold, title_len_threshold):
 def model(x, **kwargs):
     # think of a better way to set kwargs
     if 'middle_len_threshold' not in kwargs.keys():
-        kwargs['middle_len_threshold'] = 13
+        kwargs['middle_len_threshold'] = 12
     if 'title_len_threshold' not in kwargs.keys():
         kwargs['title_len_threshold'] = 0
 

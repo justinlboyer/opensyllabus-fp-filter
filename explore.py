@@ -100,7 +100,8 @@ ax=sns.kdeplot(
 )
 
 # No clear relationship among the offsets that we can use to our advantage
-
+#%%
+train_df = df[df['split']=='train']
 # %% Let's look at if there is any signal in length of strings
 df['author_len'] = df.author.str.len()
 sns.violinplot(x='label', y='author_len', data=df)
@@ -112,18 +113,18 @@ sns.violinplot(x='label', y='author_len', data=df)
 df['middle_len'] = df.middle.str.len()
 sns.violinplot(x='label', y='middle_len', data=df)
 
-print(df.loc[df['label']==True,'middle_len'].describe())
+print(train_df.loc[train_df['label']==True,'middle_len'].describe())
 
-print(df.loc[df['label']==False,'middle_len'].describe())
+print(train_df.loc[train_df['label']==False,'middle_len'].describe())
 
 # looking very good!
 # %%
 df['title_len'] = df.title.str.len()
 sns.violinplot(x='label', y='title_len', data=df)
 
-print(df.loc[df['label']==True,'title_len'].describe())
+print(train_df.loc[train_df['label']==True,'title_len'].describe())
 
-print(df.loc[df['label']==False,'title_len'].describe())
+print(train_df.loc[train_df['label']==False,'title_len'].describe())
 
 # also looking very good
 

@@ -15,7 +15,7 @@ def workflow(pth):
     
     baseline_run = mlflow.run('.', 'baseline'
                                 , parameters={'pth': processed_data_uri
-                                                , 'middle_len_threshold': 13
+                                                , 'middle_len_threshold': 12
                                                 , 'title_len_threshold': 0})
     nb_run = mlflow.run('.', 'nb'
                             , parameters={'pth': processed_data_uri
