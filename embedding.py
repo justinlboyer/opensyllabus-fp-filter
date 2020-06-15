@@ -24,6 +24,9 @@ class Embd(nn.Module):
         x = self.sif(x)
         return nn.LogSoftmax(self.last(x))
 
+def predict_cat():
+    '''Train embedding by just predicting if the word is title or author, then fine tune on actual labels'''
+    return None
 
 
 def preprocess():
