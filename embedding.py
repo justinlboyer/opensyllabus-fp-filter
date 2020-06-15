@@ -11,10 +11,10 @@ import torch.nn as nn
 def workflow(df):
     pytorch_data_dir = './data/pytorch/'
 
-    train_iter, val_iter, test_iter = preprocess(pytorch_data_dir)
+    train_iter, val_iter, test_iter = process(pytorch_data_dir)
     
 
-def preprocess(pytorch_data_dir):
+def process(pytorch_data_dir):
     TEXT, LABEL, train, val, test = embed_preprocess.create_pytorch_dataset(pytorch_data_dir)
 
     TEXT.build_vocab(train)
@@ -24,13 +24,13 @@ def preprocess(pytorch_data_dir):
 
 
 def build_iterator(train, val, test, batch_size=64):
-    train_iter, val_iter = BucketIterator((train, val)
-                                        , batch_size=(batch_size, batch_size)
-                                        , device=-1
+    train_iter, val_iter = BucketIterator.splits((train, val)
+                                        , batch_size=batch_size
+                                        , device='cpu'
                                         , sort_key=lambda x: len(x.title)
                                         , sort_within_batch=False
                                         , repeat=True)
-    test_iter = Iterator(test, batch_size, device=-1, sort=False, sort_within_batch=False, repeat=True)
+    test_iter = Iterator(test, batch_size=batch_size, device='cpu', sort=False, sort_within_batch=False, repeat=True)
 
     return train_iter, val_iter, test_iter
 
