@@ -9,6 +9,7 @@ dependencies:
   - requests
   - pandas
   - scikit-learn
+  - pytorch
   - pip
   - pip:
     - mlflow
