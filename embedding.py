@@ -1,13 +1,38 @@
+import embed_preprocess
 import pandas as pd
+# import sif_embedding
 import string
 import torch
+from torchtext.data import Iterator, BucketIterator
 import torch.nn as nn
 
 
+
 def workflow(df):
-    train_df = df[df['split'] == 'train']
-    val_df = df[df['split']=='dev']
-    test_df = df[df['split']=='test']
+    pytorch_data_dir = './data/pytorch/'
+
+    train_iter, val_iter, test_iter = preprocess(pytorch_data_dir)
+    
+
+def preprocess(pytorch_data_dir):
+    TEXT, LABEL, train, val, test = embed_preprocess.create_pytorch_dataset(pytorch_data_dir)
+
+    TEXT.build_vocab(train)
+    train_iter, val_iter, test_iter =  build_iterator(train, val, test)
+    return train_iter, val_iter, test_iter
+
+
+
+def build_iterator(train, val, test, batch_size=64):
+    train_iter, val_iter = BucketIterator((train, val)
+                                        , batch_size=(batch_size, batch_size)
+                                        , device=-1
+                                        , sort_key=lambda x: len(x.title)
+                                        , sort_within_batch=False
+                                        , repeat=True)
+    test_iter = Iterator(test, batch_size, device=-1, sort=False, sort_within_batch=False, repeat=True)
+
+    return train_iter, val_iter, test_iter
 
 
 class Embd(nn.Module):
@@ -29,7 +54,7 @@ def predict_cat():
     return None
 
 
-def preprocess():
+def preprocess(df):
     all_letters = string.ascii_letters + " .,;'"
     n_letters = len(all_letters)
 

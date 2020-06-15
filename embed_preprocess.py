@@ -1,7 +1,6 @@
 import pandas as pd
 import torch
 from torchtext.data import Field, TabularDataset, Iterator, BucketIterator
-import string
 
 def process(df, rewrite=False):
     pytorch_data_dir = './data/pytorch'
