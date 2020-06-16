@@ -11,13 +11,13 @@ def reset_mlflow_run():
     mlflow.start_run()
     mlflow.end_run()
 
-def get_and_log_metrics(true, preds):
+def get_and_log_metrics(true, preds, name='', step=None):
     f1 = f1_score(true, preds)
     precision = precision_score(true, preds)
     recall = recall_score(true, preds)
-    mlflow.log_metric('f1_score', f1)
-    mlflow.log_metric('precision_score', precision)
-    mlflow.log_metric('recall_score', recall)
+    mlflow.log_metric(f'{name}f1_score', f1, step=step)
+    mlflow.log_metric(f'{name}precision_score', precision, step=step)
+    mlflow.log_metric(f'{name}recall_score', recall, step=step)
 
 def load_vectorizers(pth):
     return load(pth)
