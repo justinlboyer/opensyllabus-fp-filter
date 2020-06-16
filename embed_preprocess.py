@@ -2,12 +2,12 @@ import pandas as pd
 import torch
 from torchtext.data import Field, TabularDataset, Iterator, BucketIterator
 
-def process(df, rewrite=False):
-    pytorch_data_dir = './data/pytorch'
-    if rewrite:
-        split_n_write(df)
+# def process(df, rewrite=False):
+#     pytorch_data_dir = './data/pytorch'
+#     if rewrite:
+#         split_n_write(df)
 
-    TEXT, LABEL, train, val, test = create_pytorch_dataset(pytorch_data_dir)
+#     TEXT, LABEL, train, val, test = create_pytorch_dataset(pytorch_data_dir)
 
 
 

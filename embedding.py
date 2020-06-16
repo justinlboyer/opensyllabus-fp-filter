@@ -16,10 +16,12 @@ import utils
 @click.command()
 @click.argument('epochs', type=click.INT)
 @click.argument('learning_rate', type=click.FLOAT)
-def workflow(epochs, learning_rate):
+@click.argument('make_data', type=click.BOOL)
+def workflow(epochs, learning_rate, make_data=False):
     pytorch_data_dir = './data/pytorch/'
+    utils.make_path(pytorch_data_dir)
     print(f'Training model with {epochs} epochs, learning rate={learning_rate}'.center(90,'~'))
-    train_iter, val_iter, test_iter, TEXT = process(pytorch_data_dir)
+    train_iter, val_iter, test_iter, TEXT = process(pytorch_data_dir, make_data)
 
     vocab_size = len(TEXT.vocab)
 
@@ -32,7 +34,7 @@ def workflow(epochs, learning_rate):
         mlflow.log_param('epochs', epochs)
         mlflow.log_param('learning_rate', learning_rate)
         for ep in range(epochs):
-            trainer(model, train_iter, optimizer, criterion)
+            trainer(model, train_iter, optimizer, criterion, ep)
             evaluate(model, val_iter, criterion, ep, 'val_')
         evaluate(model, test_iter, criterion, ep, 'test_', timed=True)
             
@@ -62,8 +64,10 @@ class Embd(nn.Module):
         # print(x.shape)
         return x
 
-def trainer(model, train_iter, optimizer, criterion):
+def trainer(model, train_iter, optimizer, criterion, epoch):
     model.train()
+    all_true = []
+    all_preds = []
     for i, batch in enumerate(train_iter):
         optimizer.zero_grad()
         out = model(batch.middle)
@@ -73,8 +77,14 @@ def trainer(model, train_iter, optimizer, criterion):
         optimizer.step()
         mlflow.log_metric('loss', loss.item(), step = i)
 
+        preds = np.round(torch.sigmoid(out).tolist())
+        all_preds.extend(preds)
+        all_true.extend(y.tolist())
+
         if i > len(train_iter):
             break
+    
+    utils.get_and_log_metrics(all_true, all_preds, name='train_', step=epoch)
 
 def evaluate(model, iterator, criterion, epoch, name, timed=False):
     model.eval()
@@ -94,7 +104,7 @@ def evaluate(model, iterator, criterion, epoch, name, timed=False):
             
             if timed:
                 end = time.time()
-                timer += start-end
+                timer += end-start
 
             y = batch.bin_label.unsqueeze(1).float()
 
@@ -109,9 +119,15 @@ def evaluate(model, iterator, criterion, epoch, name, timed=False):
                 break
         mlflow.log_metric(f'{name}epoch_loss', epoch_loss, step=epoch)
         utils.get_and_log_metrics(all_true, all_preds, name=name, step=epoch)
+        if timed:
+            mlflow.log_metric('prediction_time', timer)
 
 
-def process(pytorch_data_dir):
+def process(pytorch_data_dir, make_data):
+    if make_data:
+        df = pd.read_csv('./data/processed/matches.csv')
+        embed_preprocess.split_n_write(df)
+
     TEXT, LABEL, train, val, test = embed_preprocess.create_pytorch_dataset(pytorch_data_dir)
 
     TEXT.build_vocab(train)

@@ -21,6 +21,11 @@ def workflow(pth):
                             , parameters={'pth': processed_data_uri
                                             , 'vec_pth': vec_dir_uri})
 
+    dl_run = mlflow.run('.', 'emb'
+                        , parameters={'epochs': 5
+                                        , 'learning_rate': 0.01
+                                        , 'make_data': True})
+
 
 if __name__ == '__main__':
     workflow()

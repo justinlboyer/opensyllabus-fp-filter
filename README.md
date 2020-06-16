@@ -23,6 +23,9 @@ That will run the data cleaning, the baseline, and the experiements with naive b
 Navigate to url (typically http:127.0.0.1:5000). Now you can inspect each experiment and see which is performing best.  On my machine the model using just the lengths of the author, middle and title has a F1 score of 0.854 and can run inference on the test set in 0.003 seconds, so this seems to take the cake for the day.
 
 ## Discussion of results
+### 2020-06-15 Update
+After working more with the data, it appears that the validation set is likely more difficult than the test set.  This is something that needs to be verified and the data may need to be reshuffled.
+
 We are concerned with speed and reducing the amount of false positives of which we have many (billions in production).  As such, we want to record the amount of time inference takes as well as the F1 score.  I choose the F1 score to be my metric of choice, because I know that we have an abundance of false positives, so I need to have high recall, but I don't want to remove alot of actual books so I need to balance the precision as well.  Since the F1 score is the harmonic mean between precision and recall it fits the bill perfectly.  It might be worthwhile to come back at a later date and identify if we want to weight precision or recall more, but for the purpose of this exercise that is likely unnecessary.
 
 ### Baseline
@@ -53,8 +56,20 @@ Since the counts are ordinal and sparse I opted to use the multinomial formaliza
 ### Gaussian on TIFIDF of 2-gram
 Lastly I ran a model on the same counts as above but transformed by term frequency inverse document frequency.  This gives us continuous features again (albeit sparse), so I opted to use the gaussian formulation.  This model performed better than the multinomial model with an F1 score of 0.813, it cost a bit more clocking in with an inference time of 0.054 seconds.
 
+### Deep Learning (Updated 2020-06-15)
+#### Embedding + LSTM (baseline)
+Since deep learning models can also get needlessly complex, I opted to start with a simple model, but make sure my pipeline was lock tight before I started iterating on the model.  The model I started with is a simple LSTM that ingests the characters of the middle string and uses the last unit in the sequence to make the prediction on the classification task.  This simple model is doing alright after 5 epochs it is hitting around 0.788 on F1 on the test set, and it is not too heavy clocking in at 0.372 seconds on the wall.  But this is not nearly good enough to run in production.
+
+The models I intend to iterate on in order of priority (based on what is likely to lead to rapid gains):
+
+1. Ingest the author, middle, and title
+2. Use Transformer architecture
+3. Code up the smooth inverse frequency method and see if that works well with just embeddings
+4. Train a semi-suprervised model to predict if the words (characters) are from an author, middle or title.  Then transfer this learning to another model for the task at hand.  Try 3 again with the new encoding.
+4. Train a semi-supervised model with the above task as well as with masking of characters/words.  Try 3 again with the new encoding.
+
 ### Conclusion
-Given how efficient the gaussian naive bayes on word lengths in conjunction with how well it performed this would be a great candidate for production.  The beauty of the leg work in the set up I put together is all that would be needed to deploy it to say sagemaker is to log the model and deploy it to sagemaker by calling (roughly)[^2]:
+Given how efficient the gaussian naive bayes on word lengths in conjunction with how well it performed this would be a great candidate for production.  If we went down that road I would want to conduct a secondary analysis to ensure that it is performing as expected, specifically I'd like to inspect many of the records and ensure that the predictions are agreeing with what I expect.  The beauty of the leg work in the set up I put together is all that would be needed to deploy it to say sagemaker is to log the model and deploy it to sagemaker by calling (roughly)[^2]:
 [^2]: One would still need to set up aws appropriately and blah, blah, blah, but it is much easier than other ways.
 
     mlflow.sklearn.log_model(gnb, artifact_path)

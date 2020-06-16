@@ -18,6 +18,12 @@ entry_points:
       pth: path
       vec_pth: path
     command: "python naive_bayes.py {pth} {vec_pth}"
+  emb:
+    parameters:
+      epochs: int
+      learning_rate: float
+      make_data: bool
+    command: "python embedding.py {epochs} {learning_rate} {make_data}"
   main:
     parameters:
       pth: path
