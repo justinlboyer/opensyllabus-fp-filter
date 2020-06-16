@@ -5,21 +5,49 @@ import string
 import torch
 from torchtext.data import Iterator, BucketIterator
 import torch.nn as nn
+import torch.nn.functional as F
+import torch.optim as optim
 
 
 
 def workflow(df):
     pytorch_data_dir = './data/pytorch/'
 
-    train_iter, val_iter, test_iter = process(pytorch_data_dir)
+    train_iter, val_iter, test_iter, TEXT = process(pytorch_data_dir)
+
+    vocab_size = len(TEXT.vocab)
+
+
     
+
+class Embd(nn.Module):
+    def __init__(self, vocab_size, emb_size=128):
+        super(Embd, self).__init__()
+        self.emb_size = emb_size
+
+        self.em = nn.Embedding(vocab_size, self.emb_size)
+        self.lstm = nn.LSTM(self.emb_size, 16, bidirectional=True, num_layers=1)
+        self.last = nn.Linear(32, 1)
+
+    def forward(self, x):
+        # print(x.shape)
+        x = self.em(x)
+        # print(x.shape)
+        x, _ = self.lstm(x)
+        # print(x.shape)
+        x = x[-1,:,:]
+        # print(x.shape)
+        x = self.last(x)
+        # print(x.shape)
+        return x
+
 
 def process(pytorch_data_dir):
     TEXT, LABEL, train, val, test = embed_preprocess.create_pytorch_dataset(pytorch_data_dir)
 
     TEXT.build_vocab(train)
     train_iter, val_iter, test_iter =  build_iterator(train, val, test)
-    return train_iter, val_iter, test_iter
+    return train_iter, val_iter, test_iter, TEXT
 
 
 
@@ -35,49 +63,13 @@ def build_iterator(train, val, test, batch_size=64):
     return train_iter, val_iter, test_iter
 
 
-class Embd(nn.Module):
-    def __init__(self, n_letters=57, emb_size=512):
-        super(Embd, self).__init__()
-        self.emb_size = emb_size
 
-        self.em = nn.Embedding(n_letters, emb_size)
-        self.sif = None # tbd
-        self.last = nn.Linear(512, 1)
-
-    def forward(self, x):
-        x = self.em(x)
-        x = self.sif(x)
-        return nn.LogSoftmax(self.last(x))
 
 def predict_cat():
     '''Train embedding by just predicting if the word is title or author, then fine tune on actual labels'''
     return None
 
 
-def preprocess(df):
-    all_letters = string.ascii_letters + " .,;'"
-    n_letters = len(all_letters)
-
-
-
-
-
-def letterToIndex(letter):
-    return all_letters.find(letter)
-
-# Just for demonstration, turn a letter into a <1 x n_letters> Tensor
-def letterToTensor(letter):
-    tensor = torch.zeros(1, n_letters)
-    tensor[0][letterToIndex(letter)] = 1
-    return tensor
-
-# Turn a line into a <line_length x 1 x n_letters>,
-# or an array of one-hot letter vectors
-def lineToTensor(line):
-    tensor = torch.zeros(len(line), 1, n_letters)
-    for li, letter in enumerate(line):
-        tensor[li][0][letterToIndex(letter)] = 1
-    return tensor
 
 
 
