@@ -62,7 +62,7 @@ Since deep learning models can also get needlessly complex, I opted to start wit
 
 The models I intend to iterate on in order of priority (based on what is likely to lead to rapid gains):
 
-1. Ingest the author, middle, and title
+1. ~~Ingest the author, middle, and title~~
 2. Use Transformer architecture
 3. Code up the smooth inverse frequency method and see if that works well with just embeddings
 4. Train a semi-suprervised model to predict if the words (characters) are from an author, middle or title.  Then transfer this learning to another model for the task at hand.  Try 3 again with the new encoding.

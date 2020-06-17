@@ -25,7 +25,7 @@ def workflow(epochs, learning_rate, make_data=False):
 
     vocab_size = len(TEXT.vocab)
 
-    model = Embd(vocab_size)
+    model = Emb3in(vocab_size)
 
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
     criterion = nn.BCEWithLogitsLoss()
@@ -40,7 +40,27 @@ def workflow(epochs, learning_rate, make_data=False):
             
 
 
+class Emb3in(nn.Module):
+    def __init__(self, vocab_size, emb_size=128):
+        super(Emb3in, self).__init__()
+        self.emb_size = emb_size
+        self.vocab_size = vocab_size
 
+        self.embd_author = Embd(self.vocab_size)
+        self.embd_middle = Embd(self.vocab_size)
+        self.embd_title = Embd(self.vocab_size)
+
+        self.last = nn.Linear(3,1)
+
+    def forward(self, author, middle, title):
+        out1 = self.embd_author(author)
+        out2 = self.embd_middle(middle)
+        out3 = self.embd_title(title)
+        # print(out3.shape)
+        out = torch.cat((out1, out2, out3), 1)
+        # print(out.shape)
+        out = self.last(out)
+        return out
     
 
 class Embd(nn.Module):
@@ -70,7 +90,7 @@ def trainer(model, train_iter, optimizer, criterion, epoch):
     all_preds = []
     for i, batch in enumerate(train_iter):
         optimizer.zero_grad()
-        out = model(batch.middle)
+        out = model(batch.author, batch.middle, batch.title)
         y = batch.bin_label.unsqueeze(1).float()
         loss = criterion(out, y)
         loss.backward()
@@ -100,7 +120,7 @@ def evaluate(model, iterator, criterion, epoch, name, timed=False):
             if timed: 
                 start = time.time()
             
-            out = model(batch.middle)
+            out = model(batch.author, batch.middle, batch.title)
             
             if timed:
                 end = time.time()
@@ -146,14 +166,6 @@ def build_iterator(train, val, test, batch_size=64):
     test_iter = Iterator(test, batch_size=batch_size, device='cpu', sort=False, sort_within_batch=False, repeat=True)
 
     return train_iter, val_iter, test_iter
-
-
-
-
-def predict_cat():
-    '''Train embedding by just predicting if the word is title or author, then fine tune on actual labels'''
-    return None
-
 
 
 
